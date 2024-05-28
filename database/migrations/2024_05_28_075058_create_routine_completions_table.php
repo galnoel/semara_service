@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('routine_completions', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('routine_id');
+            $table->dateTime('completed_at');
             $table->timestamps();
+            $table->foreign('routine_id')->references('id')->on('routines');
         });
     }
 
