@@ -13,6 +13,12 @@ class RoutinesController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function getAllRoutines()
+    {
+        $routines = routines::all(); // Fetch all routines from the database
+
+        return response()->json($routines, 200);
+    }
     public function index()
     {
         //
