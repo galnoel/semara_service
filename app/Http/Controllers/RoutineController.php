@@ -13,13 +13,43 @@ class RoutineController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function index($routineId){
+         // Get the authenticated user's ID
+        $userId = auth()->id();
+
+        // Find the routine by ID
+        $routine = Routine::find($routineId);
+
+        // Check if the routine exists
+        if (!$routine) {
+            return response()->json([
+                'status'=> 404,
+                'message' => 'Routine not found'
+            ]);
+        }
+
+        // Check if the routine belongs to the authenticated user
+        if ($routine->user_id !== $userId) {
+            return response()->json([
+                'status'=> 200,
+                'message' => 'Unauthorized'
+            ]);
+        }
+
+        // Return the routine in a JSON response
+        return response()->json([
+            'status'=> 200,
+            'body' => $routine
+        ]);
+    }
+    
     public function getAllRoutine()
     {
         $Routine = Routine::all(); // Fetch all Routine from the database
 
         return response()->json($Routine, 200);
     }
-    public function index()
+    public function userRoutines()
     {
          // Get the authenticated user's ID
         $userId = auth()->id();
