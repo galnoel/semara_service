@@ -16,7 +16,7 @@ Route::get('/user', function (Request $request) {
 Route::controller(RoutineController::class)->group(function () {
     Route::get('routines', 'getAllRoutines');
     Route::post('routines', 'store')->middleware('auth:sanctum');
-    Route::patch('/routines/{routineId}', 'updateRoutine');
+    Route::patch('/routines/{routineId}', 'update')->middleware('auth:sanctum');
 });
 
 Route::controller(AuthenticationController::class)->group(function(){

@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Routine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\StoreRoutineRequest;
-use App\Http\Requests\UpdateRoutineRequest;
 use Auth;
 use Exception;
 
@@ -23,7 +21,18 @@ class RoutineController extends Controller
     }
     public function index()
     {
-        //
+         // Get the authenticated user's ID
+        $userId = auth()->id();
+
+        // Retrieve all routines for the authenticated user
+        $routines = Routine::where('user_id', $userId)->get();
+
+        // Return the routines in a JSON response
+        return response()->json([
+            'status'=> 200,
+            'body' => $routines
+        ]);
+        
     }
 
     /**
@@ -67,7 +76,7 @@ class RoutineController extends Controller
 
             return response()->json([
                 'status'=> true,
-                'message'=>'User created successfully',
+                'message'=>'Routine created successfully',
                 'routine' => $routine
             ], 201);
 
@@ -79,11 +88,55 @@ class RoutineController extends Controller
         }
     }
 
+    public function update(Request $request, $routineId)
+    {
+        
+        $validator = Validator::make($request->all(), [
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'start_time' => 'nullable|string|date_format:H:i', // Assuming hh:mm format
+            //'days' => 'nullable|array', // Assuming JSON array of days (e.g., ["monday", "wednesday"])
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'=> 422,
+                'message'=>'validation error',
+                'errors'=>$validator->errors()
+            ]);
+        }
+        
+        $routine = Routine::findOrFail($routineId);
+
+        $user_id = $request->user()->id;
+        if ($routine->user_id !== $user_id) {
+            return response()->json([
+                'status' =>403,
+                'message' => 'Unauthorized',
+                'body'=> $user_id
+            ]);
+        }
+
+        // Update fields using provided values or keep existing values if not provided
+        $routine->title = $request->title ?? $routine->title;
+        $routine->description = $request->description ?? $routine->description;
+        $routine->start_time = $request->start_time ?? $routine->start_time;
+        //$routine->days = $request->days ?? $routine->days; // Assuming JSON array format
+
+        $routine->save();
+
+        return response()->json([
+            'status'=> 200,
+            'message'=>'Routine updated successfully',
+            'routine' => $routine
+        ]);
+    }
+
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store2(StoreRoutineRequest $request)
+    public function store2(Request $request)
     {
         //
     }
@@ -103,15 +156,6 @@ class RoutineController extends Controller
     {
         //
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateRoutineRequest $request, Routine $Routine)
-    {
-        //
-    }
-
     /**
      * Remove the specified resource from storage.
      */
@@ -120,30 +164,6 @@ class RoutineController extends Controller
         //
     }
 
-    public function updateRoutine(Request $request, $routineId)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'time' => 'nullable|string|date_format:H:i', // Assuming hh:mm format
-            'days' => 'nullable|array', // Assuming JSON array of days (e.g., ["monday", "wednesday"])
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        $routine = Routine::findOrFail($routineId);
-
-        // Update fields using provided values or keep existing values if not provided
-        $routine->name = $request->name ?? $routine->name;
-        $routine->description = $request->description ?? $routine->description;
-        $routine->time = $request->time ?? $routine->time;
-        $routine->days = $request->days ?? $routine->days; // Assuming JSON array format
-
-        $routine->save();
-
-        return response()->json($routine, 200);
-    }
+    
 
 }
