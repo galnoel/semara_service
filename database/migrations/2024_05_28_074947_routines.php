@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('routines', function (Blueprint $table) {
             $table->id();
-            //$table->unsignedBigInteger('user_id');
-            $table->string('name');
+            $table->unsignedBigInteger('user_id');
+            $table->string('title');
             $table->text('description')->nullable();
-            $table->json('days');
-            $table->time('time');
-            $table->dateTime('completed_at')->nullable();
+            //$table->json('days');
+            $table->time('start_time');
             $table->timestamps();
 
-            //$table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

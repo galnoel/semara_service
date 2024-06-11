@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RoutineCompletion;
 use Carbon\Carbon;
 use App\Models\routine_completions;
 use App\Models\routines;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class RoutineCompletionsController extends Controller
+class RoutineCompletionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -52,7 +53,7 @@ class RoutineCompletionsController extends Controller
     //     return response()->json($completion, 201);
     //  }
 
-    public function markCompleted(Request $request, $routineId)
+    public function create(Request $request, $routineId)
     {
         $validator = Validator::make($request->all(), [
             'completed_at' => 'nullable|date_format:Y-m-d\TH:i', // Optional for marking past completions
@@ -62,7 +63,7 @@ class RoutineCompletionsController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $completion = routine_completions::create([
+        $completion = RoutineCompletion::create([
             'routine_id' => $routineId,
             'completed_at' => $request->completed_at ?? now(), // Use current time if not provided
         ]);
@@ -77,10 +78,7 @@ class RoutineCompletionsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        //
-    }
+    
 
     /**
      * Store a newly created resource in storage.
