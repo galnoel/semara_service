@@ -26,6 +26,10 @@ Route::middleware('auth:sanctum')->group(function(){
     });
 });
 
+Route::middleware('auth:sanctum')->group(function(){
+    Route::post('/auth/logout', [AuthenticationController::class, 'logout']);
+});
+
 Route::post('/routines/{routineId}/completions', [RoutineCompletionController::class, 'create']);
 
 
