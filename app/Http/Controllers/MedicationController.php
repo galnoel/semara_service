@@ -140,7 +140,7 @@ class MedicationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $routineId)
+    public function update(Request $request, $medicationId)
     {
         
         $validator = Validator::make($request->all(), [
@@ -160,7 +160,7 @@ class MedicationController extends Controller
             ]);
         }
         
-        $medication = Medication::findOrFail($routineId);
+        $medication = Medication::findOrFail($medicationId);
 
         $user_id = $request->user()->id;
         if ($medication->user_id !== $user_id) {
@@ -190,9 +190,24 @@ class MedicationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Medication $medication)
+    public function destroy($medicationId)
     {
         //
-        
+        $medication = Medication::findOrFail($medicationId);
+
+        $user_id = auth()->id();
+        if ($medication->user_id !== $user_id) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'Unauthorized',
+            ]);
+        }
+
+        $medication->delete();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Medication deleted successfully'
+        ]);
     }
 }
