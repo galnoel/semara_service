@@ -12,49 +12,65 @@ class MedicationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($medicationId)
+
+
+    public function index()
+    {
+        try {
+            $userId = auth()->id();
+
+            $medication = Medication::where('user_id', $userId)->get();
+            return response()->json([
+                'status' => 200,
+                'medication' => $medication
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => $th->getMessage()
+            ]);
+        }
+    } 
+    public function show($medicationId)
     {
         //
          // Get the authenticated user's ID
-         $userId = auth()->id();
+        try {   
+            $userId = auth()->id();
 
-         // Find the medication by ID
-         $medication = Medication::find($medicationId);
- 
-         // Check if the medication exists
-         if (!$medication) {
-             return response()->json([
-                 'status'=> 404,
-                 'message' => 'Medication not found'
-             ]);
-         }
- 
-         // Check if the medication belongs to the authenticated user
-         if ($medication->user_id !== $userId) {
-             return response()->json([
-                 'status'=> 200,
-                 'message' => 'Unauthorized'
-             ]);
-         }
- 
-         // Return the medication in a JSON response
-         return response()->json([
-             'status'=> 200,
-             'body' => $medication
-         ]);
+            // Find the medication by ID
+            $medication = Medication::find($medicationId);
+    
+            // Check if the medication exists
+            if (!$medication) {
+                return response()->json([
+                    'status'=> 404,
+                    'message' => 'Medication not found'
+                ]);
+            }
+    
+            // Check if the medication belongs to the authenticated user
+            if ($medication->user_id !== $userId) {
+                return response()->json([
+                    'status'=> 200,
+                    'message' => 'Unauthorized'
+                ]);
+            }
+    
+            // Return the medication in a JSON response
+            return response()->json([
+                'status'=> 200,
+                'body' => $medication
+            ]);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request)
     {
         //
@@ -105,86 +121,59 @@ class MedicationController extends Controller
         }
     }
 
-    public function userMedications()
-    {
-         // Get the authenticated user's ID
-        $userId = auth()->id();
 
-        // Retrieve all medication for the authenticated user
-        $medication = Medication::where('user_id', $userId)->get();
-
-        // Return the medication in a JSON response
-        return response()->json([
-            'status'=> 200,
-            'body' => $medication
-        ]);
-        
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Medication $medication)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Medication $medication)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $medicationId)
     {
         
-        $validator = Validator::make($request->all(), [
-            'medication_name' => 'nullable|string|max:255',
-            'dosage' => 'nullable|string|max:255',
-            'frequency' => 'nullable|string|max:255',
-            'interval' => 'nullable|integer|min:1',
-            'before_eat' => 'nullable|boolean',
-            'is_active' => 'nullable|boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status'=> 422,
-                'message'=>'validation error',
-                'errors'=>$validator->errors()
+        try{   
+            $validator = Validator::make($request->all(), [
+                'medication_name' => 'nullable|string|max:255',
+                'dosage' => 'nullable|string|max:255',
+                'frequency' => 'nullable|string|max:255',
+                'interval' => 'nullable|integer|min:1',
+                'before_eat' => 'nullable|boolean',
+                'is_active' => 'nullable|boolean',
             ]);
-        }
-        
-        $medication = Medication::findOrFail($medicationId);
 
-        $user_id = $request->user()->id;
-        if ($medication->user_id !== $user_id) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'=> 422,
+                    'message'=>'validation error',
+                    'errors'=>$validator->errors()
+                ]);
+            }
+            
+            $medication = Medication::findOrFail($medicationId);
+
+            $user_id = $request->user()->id;
+            if ($medication->user_id !== $user_id) {
+                return response()->json([
+                    'status' =>403,
+                    'message' => 'Unauthorized',
+                    'body'=> $user_id
+                ]);
+            }
+
+            // Update fields using provided values or keep existing values if not provided
+            $medication->medication_name = $request->medication_name ?? $medication->medication_name;
+            $medication->dosage = $request->dosage ?? $medication->dosage;
+            $medication->frequency = $request->frequency ?? $medication->frequency;
+            $medication->interval = $request->interval ?? $medication->interval;
+            $medication->before_eat = $request->before_eat ?? $medication->before_eat;
+            $medication->is_active = $request->is_active ?? $medication->is_active;
+            $medication->save();
+
             return response()->json([
-                'status' =>403,
-                'message' => 'Unauthorized',
-                'body'=> $user_id
+                'status'=> 200,
+                'message'=>'Medication updated successfully',
+                'medication' => $medication
             ]);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
         }
-
-        // Update fields using provided values or keep existing values if not provided
-        $medication->medication_name = $request->medication_name ?? $medication->medication_name;
-        $medication->dosage = $request->dosage ?? $medication->dosage;
-        $medication->frequency = $request->frequency ?? $medication->frequency;
-        $medication->interval = $request->interval ?? $medication->interval;
-        $medication->before_eat = $request->before_eat ?? $medication->before_eat;
-        $medication->is_active = $request->is_active ?? $medication->is_active;
-        $medication->save();
-
-        return response()->json([
-            'status'=> 200,
-            'message'=>'Medication updated successfully',
-            'medication' => $medication
-        ]);
     }
 
     /**
@@ -193,21 +182,28 @@ class MedicationController extends Controller
     public function destroy($medicationId)
     {
         //
-        $medication = Medication::findOrFail($medicationId);
+        try{   
+            $medication = Medication::findOrFail($medicationId);
 
-        $user_id = auth()->id();
-        if ($medication->user_id !== $user_id) {
+            $user_id = auth()->id();
+            if ($medication->user_id !== $user_id) {
+                return response()->json([
+                    'status' => 403,
+                    'message' => 'Unauthorized',
+                ]);
+            }
+
+            $medication->delete();
+
             return response()->json([
-                'status' => 403,
-                'message' => 'Unauthorized',
+                'status' => 200,
+                'message' => 'Medication deleted successfully'
             ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
         }
-
-        $medication->delete();
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Medication deleted successfully'
-        ]);
     }
 }

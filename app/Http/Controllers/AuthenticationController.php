@@ -97,7 +97,7 @@ class AuthenticationController extends Controller
         }
     }
 
-    public function logout(Request $request)
+    public function destroy(Request $request)
     {
         try {
             $request->user()->currentAccessToken()->delete();

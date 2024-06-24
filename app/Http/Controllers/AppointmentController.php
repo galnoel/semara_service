@@ -114,8 +114,6 @@ class AppointmentController extends Controller
     public function update(Request $request, $appointmentId)
     {
         try {
-            $appointment = Appointment::findOrFail($appointmentId);
-
             $validator = Validator::make($request->all(), [
                 'title' => 'sometimes|required|string|max:255',
                 'doctor_name' => 'sometimes|required|string|max:255',
