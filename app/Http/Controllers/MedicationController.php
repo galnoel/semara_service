@@ -87,8 +87,8 @@ class MedicationController extends Controller
                 'dosage' => $request->dosage,
                 'frequency' => $request->frequency,
                 'interval' => $request->interval,
-                'before_eat' => $request->before_eat,
-                'is_active' => $request->is_active,
+                'before_eat' => $request->before_eat ?? false, // default value
+                'is_active' => $request->is_active ?? true,   // default value
             ]);
 
             return response()->json([
