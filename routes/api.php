@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\MedicationController;
 use Illuminate\Http\Request;
@@ -34,6 +35,17 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('/user/medications', 'userMedications');
         Route::patch('/medication/{medication_id}', 'update'); 
         Route::delete('/medication/{medicationId}', 'destroy');
+    });
+});
+
+
+Route::middleware('auth:sanctum')->group(function(){
+    Route::controller(AppointmentController::class)->group(function(){
+        Route::get('/user/appointment', 'index');
+        Route::post('appointment', 'store');
+        Route::get('/appointment/{appointment_id}', 'show');
+        Route::patch('/appointment/{appointment_id}', 'update'); 
+        Route::delete('/appointment/{appointmentId}', 'destroy');
     });
 });
 
