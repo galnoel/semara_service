@@ -19,10 +19,10 @@ Route::controller(AuthenticationController::class)->group(function(){
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::controller(RoutineController::class)->group(function () {
-        Route::get('/user/routines', 'userRoutines');
+        Route::get('/user/routines', 'index');
         Route::get('routines', 'getAllRoutine');
         Route::post('routines', 'store');
-        Route::get('/routines/{routineId}', 'index');
+        Route::get('/routines/{routineId}', 'show');
         Route::patch('/routines/{routineId}', 'update'); 
         Route::delete('/routines/{routineId}', 'destroy');
     });
@@ -30,9 +30,9 @@ Route::middleware('auth:sanctum')->group(function(){
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::controller(MedicationController::class)->group(function(){
-        Route::get('/medication/{medication_id}', 'index');
+        Route::get('/user/medications', 'index');
         Route::post('medication', 'store');
-        Route::get('/user/medications', 'userMedications');
+        Route::get('/medication/{medication_id}', 'show');
         Route::patch('/medication/{medication_id}', 'update'); 
         Route::delete('/medication/{medicationId}', 'destroy');
     });
@@ -50,10 +50,10 @@ Route::middleware('auth:sanctum')->group(function(){
 });
 
 Route::middleware('auth:sanctum')->group(function(){
-    Route::post('/auth/logout', [AuthenticationController::class, 'logout']);
+    Route::post('/auth/logout', [AuthenticationController::class, 'destroy']);
 });
 
-Route::post('/routines/{routineId}/completions', [RoutineCompletionController::class, 'create']);
+Route::post('/routines/{routineId}/completions', [RoutineCompletionController::class, 'store']);
 
 
 // Route::post('storeRoutines', [RoutinesController::class, 'store']);

@@ -53,22 +53,28 @@ class RoutineCompletionController extends Controller
     //     return response()->json($completion, 201);
     //  }
 
-    public function create(Request $request, $routineId)
+    public function store(Request $request, $routineId)
     {
-        $validator = Validator::make($request->all(), [
-            'completed_at' => 'nullable|date_format:Y-m-d\TH:i', // Optional for marking past completions
-        ]);
+        try{   $validator = Validator::make($request->all(), [
+                'completed_at' => 'nullable|date_format:Y-m-d\TH:i', // Optional for marking past completions
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            $completion = RoutineCompletion::create([
+                'routine_id' => $routineId,
+                'completed_at' => $request->completed_at ?? now(), // Use current time if not provided
+            ]);
+
+            return response()->json($completion, 201);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
         }
-
-        $completion = RoutineCompletion::create([
-            'routine_id' => $routineId,
-            'completed_at' => $request->completed_at ?? now(), // Use current time if not provided
-        ]);
-
-        return response()->json($completion, 201);
     }
     public function index()
     {
@@ -83,40 +89,5 @@ class RoutineCompletionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Storeroutine_completionsRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(routine_completions $routine_completions)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(routine_completions $routine_completions)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Updateroutine_completionsRequest $request, routine_completions $routine_completions)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(routine_completions $routine_completions)
-    {
-        //
-    }
+   
 }

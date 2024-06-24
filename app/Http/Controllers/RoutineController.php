@@ -10,69 +10,77 @@ use Exception;
 
 class RoutineController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index($routineId){
-         // Get the authenticated user's ID
-        $userId = auth()->id();
+    public function index()
+    {
+        try{ // Get the authenticated user's ID
+            $userId = auth()->id();
 
-        // Find the routine by ID
-        $routine = Routine::find($routineId);
+            // Retrieve all routines for the authenticated user
+            $routines = Routine::where('user_id', $userId)->get();
 
-        // Check if the routine exists
-        if (!$routine) {
-            return response()->json([
-                'status'=> 404,
-                'message' => 'Routine not found'
-            ]);
-        }
-
-        // Check if the routine belongs to the authenticated user
-        if ($routine->user_id !== $userId) {
+            // Return the routines in a JSON response
             return response()->json([
                 'status'=> 200,
-                'message' => 'Unauthorized'
+                'body' => $routines
+            ]);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => $th->getMessage()
             ]);
         }
+        
+    }
+    public function show($routineId){
+        try{
+            $userId = auth()->id();
 
-        // Return the routine in a JSON response
-        return response()->json([
-            'status'=> 200,
-            'body' => $routine
-        ]);
+            // Find the routine by ID
+            $routine = Routine::find($routineId);
+
+            // Check if the routine exists
+            if (!$routine) {
+                return response()->json([
+                    'status'=> 404,
+                    'message' => 'Routine not found'
+                ]);
+            }
+
+            // Check if the routine belongs to the authenticated user
+            if ($routine->user_id !== $userId) {
+                return response()->json([
+                    'status'=> 200,
+                    'message' => 'Unauthorized'
+                ]);
+            }
+
+            // Return the routine in a JSON response
+            return response()->json([
+                'status'=> 200,
+                'body' => $routine
+            ]);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
     
     public function getAllRoutine()
     {
-        $Routine = Routine::all(); // Fetch all Routine from the database
+        try{ 
+            $Routine = Routine::all(); // Fetch all Routine from the database
 
-        return response()->json($Routine, 200);
+            return response()->json($Routine, 200);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => $th->getMessage()
+            ]);
+        }
     }
-    public function userRoutines()
-    {
-         // Get the authenticated user's ID
-        $userId = auth()->id();
-
-        // Retrieve all routines for the authenticated user
-        $routines = Routine::where('user_id', $userId)->get();
-
-        // Return the routines in a JSON response
-        return response()->json([
-            'status'=> 200,
-            'body' => $routines
-        ]);
-        
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
+   
     public function store(Request $request)
     {
         try{
@@ -120,96 +128,78 @@ class RoutineController extends Controller
 
     public function update(Request $request, $routineId)
     {
-        
-        $validator = Validator::make($request->all(), [
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'nullable|string|date_format:H:i', // Assuming hh:mm format
-            //'days' => 'nullable|array', // Assuming JSON array of days (e.g., ["monday", "wednesday"])
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status'=> 422,
-                'message'=>'validation error',
-                'errors'=>$validator->errors()
+        try{ 
+            $validator = Validator::make($request->all(), [
+                'title' => 'nullable|string|max:255',
+                'description' => 'nullable|string',
+                'start_time' => 'nullable|string|date_format:H:i', // Assuming hh:mm format
+                //'days' => 'nullable|array', // Assuming JSON array of days (e.g., ["monday", "wednesday"])
             ]);
-        }
-        
-        $routine = Routine::findOrFail($routineId);
 
-        $user_id = $request->user()->id;
-        if ($routine->user_id !== $user_id) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'=> 422,
+                    'message'=>'validation error',
+                    'errors'=>$validator->errors()
+                ]);
+            }
+            
+            $routine = Routine::findOrFail($routineId);
+
+            $user_id = $request->user()->id;
+            if ($routine->user_id !== $user_id) {
+                return response()->json([
+                    'status' =>403,
+                    'message' => 'Unauthorized',
+                    'body'=> $user_id
+                ]);
+            }
+
+            // Update fields using provided values or keep existing values if not provided
+            $routine->title = $request->title ?? $routine->title;
+            $routine->description = $request->description ?? $routine->description;
+            $routine->start_time = $request->start_time ?? $routine->start_time;
+            //$routine->days = $request->days ?? $routine->days; // Assuming JSON array format
+            $routine->save();
+
             return response()->json([
-                'status' =>403,
-                'message' => 'Unauthorized',
-                'body'=> $user_id
+                'status'=> 200,
+                'message'=>'Routine updated successfully',
+                'routine' => $routine
             ]);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
         }
-
-        // Update fields using provided values or keep existing values if not provided
-        $routine->title = $request->title ?? $routine->title;
-        $routine->description = $request->description ?? $routine->description;
-        $routine->start_time = $request->start_time ?? $routine->start_time;
-        //$routine->days = $request->days ?? $routine->days; // Assuming JSON array format
-
-        $routine->save();
-
-        return response()->json([
-            'status'=> 200,
-            'message'=>'Routine updated successfully',
-            'routine' => $routine
-        ]);
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store2(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Routine $Routine)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Routine $Routine)
-    {
-        //
-    }
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($routineId)
     {
         //
-        $routine = Routine::findOrFail($routineId);
+        try{   
+            $routine = Routine::findOrFail($routineId);
 
-        $user_id = auth()->id();
-        if ($routine->user_id !== $user_id) {
+            $user_id = auth()->id();
+            if ($routine->user_id !== $user_id) {
+                return response()->json([
+                    'status' => 403,
+                    'message' => 'Unauthorized',
+                ]);
+            }
+
+            $routine->delete();
+
             return response()->json([
-                'status' => 403,
-                'message' => 'Unauthorized',
+                'status' => 200,
+                'message' => 'Routine deleted successfully'
             ]);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
         }
-
-        $routine->delete();
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Routine deleted successfully'
-        ]);
-    }
-
-    
-
+    } 
 }

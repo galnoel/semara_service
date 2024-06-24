@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\routine_completions>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RoutineCompletion>
  */
 class RoutineCompletionsFactory extends Factory
 {
