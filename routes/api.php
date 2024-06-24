@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\MedicationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoutineController;
@@ -18,11 +19,18 @@ Route::controller(AuthenticationController::class)->group(function(){
 Route::middleware('auth:sanctum')->group(function(){
     Route::controller(RoutineController::class)->group(function () {
         Route::get('/user/routines', 'userRoutines');
-        Route::get('routines', 'getAllRoutines');
+        Route::get('routines', 'getAllRoutine');
         Route::post('routines', 'store');
         Route::get('/routines/{routineId}', 'index');
         Route::patch('/routines/{routineId}', 'update'); 
         Route::delete('/routines/{routineId}', 'destroy');
+    });
+});
+
+Route::middleware('auth:sanctum')->group(function(){
+    Route::controller(MedicationController::class)->group(function(){
+        Route::get('/medication/{medication_id}', 'index');
+        Route::post('medication', 'store');
     });
 });
 
