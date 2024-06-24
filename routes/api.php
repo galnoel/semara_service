@@ -31,6 +31,9 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::controller(MedicationController::class)->group(function(){
         Route::get('/medication/{medication_id}', 'index');
         Route::post('medication', 'store');
+        Route::get('/user/medications', 'userMedications');
+        Route::patch('/medication/{medication_id}', 'update'); 
+
     });
 });
 

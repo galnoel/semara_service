@@ -105,6 +105,22 @@ class MedicationController extends Controller
         }
     }
 
+    public function userMedications()
+    {
+         // Get the authenticated user's ID
+        $userId = auth()->id();
+
+        // Retrieve all medication for the authenticated user
+        $medication = Medication::where('user_id', $userId)->get();
+
+        // Return the medication in a JSON response
+        return response()->json([
+            'status'=> 200,
+            'body' => $medication
+        ]);
+        
+    }
+
     /**
      * Display the specified resource.
      */
@@ -124,9 +140,51 @@ class MedicationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Medication $medication)
+    public function update(Request $request, $routineId)
     {
-        //
+        
+        $validator = Validator::make($request->all(), [
+            'medication_name' => 'nullable|string|max:255',
+            'dosage' => 'nullable|string|max:255',
+            'frequency' => 'nullable|string|max:255',
+            'interval' => 'nullable|integer|min:1',
+            'before_eat' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'=> 422,
+                'message'=>'validation error',
+                'errors'=>$validator->errors()
+            ]);
+        }
+        
+        $medication = Medication::findOrFail($routineId);
+
+        $user_id = $request->user()->id;
+        if ($medication->user_id !== $user_id) {
+            return response()->json([
+                'status' =>403,
+                'message' => 'Unauthorized',
+                'body'=> $user_id
+            ]);
+        }
+
+        // Update fields using provided values or keep existing values if not provided
+        $medication->medication_name = $request->medication_name ?? $medication->medication_name;
+        $medication->dosage = $request->dosage ?? $medication->dosage;
+        $medication->frequency = $request->frequency ?? $medication->frequency;
+        $medication->interval = $request->interval ?? $medication->interval;
+        $medication->before_eat = $request->before_eat ?? $medication->before_eat;
+        $medication->is_active = $request->is_active ?? $medication->is_active;
+        $medication->save();
+
+        return response()->json([
+            'status'=> 200,
+            'message'=>'Medication updated successfully',
+            'medication' => $medication
+        ]);
     }
 
     /**
@@ -135,5 +193,6 @@ class MedicationController extends Controller
     public function destroy(Medication $medication)
     {
         //
+        
     }
 }
