@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('doctor_name');
             $table->datetime('appointment_datetime');
-            $table->string('location');
+            // $table->string('location');
             $table->string('status')->default('scheduled'); // scheduled, canceled, completed
             //$table->text('reason')->nullable();
             // Foreign key constraints

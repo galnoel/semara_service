@@ -76,7 +76,7 @@ class AppointmentController extends Controller
                 'title' => 'required|string|max:255',
                 'doctor_name' => 'required|string|max:255',
                 'appointment_datetime' => 'required|date_format:Y-m-d H:i:s',
-                'location' => 'required|string|max:255',
+                // 'location' => 'required|string|max:255',
                 'status' => 'nullable|string|in:scheduled,canceled,completed',
             ]);
 
@@ -93,7 +93,7 @@ class AppointmentController extends Controller
                 'title' => $request->title,
                 'doctor_name' => $request->doctor_name,
                 'appointment_datetime' => $request->appointment_datetime,
-                'location'=>$request->location,
+                // // 'location'=>$request->location,
                 'status' => $request->status ?? 'scheduled',
             ]);
 
@@ -118,7 +118,7 @@ class AppointmentController extends Controller
                 'title' => 'sometimes|required|string|max:255',
                 'doctor_name' => 'sometimes|required|string|max:255',
                 'appointment_datetime' => 'sometimes|required|date_format:Y-m-d H:i:s',
-                'location' => 'sometimes|string|max:255',
+                // 'location' => 'sometimes|string|max:255',
                 'status' => 'nullable|string|in:scheduled,canceled,completed',
             ]);
 
@@ -145,7 +145,7 @@ class AppointmentController extends Controller
             $appointment->title = $request->title ?? $appointment->title;
             $appointment->doctor_name = $request->doctor_name ?? $appointment->doctor_name;
             $appointment->appointment_datetime = $request->appointment_datetime ?? $appointment->appointment_datetime;
-            $appointment->location = $request->location ?? $appointment->location;
+            // // // $appointment->location = $request->location ?? $appointment->location;
             $appointment->status = $request->status ?? $appointment->status;
             $appointment->save();
 
