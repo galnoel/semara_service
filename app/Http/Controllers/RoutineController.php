@@ -94,6 +94,7 @@ class RoutineController extends Controller
                 'description' => 'nullable|string',
                 //'days' => 'required|array|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
                 'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i',
             ]);
 
             if ($validator->fails()) {
@@ -110,6 +111,7 @@ class RoutineController extends Controller
                 'description' => $request->description,
                 //'days' => json_encode($request->days),
                 'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
             ]);
 
             return response()->json([
@@ -133,6 +135,7 @@ class RoutineController extends Controller
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
                 'start_time' => 'nullable|string|date_format:H:i', // Assuming hh:mm format
+                'end_time' => 'nullable|string|date_format:H:i', // Assuming hh:mm format
                 //'days' => 'nullable|array', // Assuming JSON array of days (e.g., ["monday", "wednesday"])
             ]);
 
@@ -159,6 +162,7 @@ class RoutineController extends Controller
             $routine->title = $request->title ?? $routine->title;
             $routine->description = $request->description ?? $routine->description;
             $routine->start_time = $request->start_time ?? $routine->start_time;
+            $routine->end_time = $request->end_time ?? $routine->end_time;
             //$routine->days = $request->days ?? $routine->days; // Assuming JSON array format
             $routine->save();
 

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             //$table->json('days');
             $table->time('start_time');
+            $table->time('end_time');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
