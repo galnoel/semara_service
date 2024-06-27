@@ -85,6 +85,7 @@ class MedicationController extends Controller
                 'dosage' => 'required|string|max:255',
                 'frequency' => 'required|string|max:255',
                 'interval' => 'required|integer|min:1',
+                'reminder_time' => 'required|date_format:H:i',
                 'before_eat' => 'nullable|boolean',
                 'is_active' => 'nullable|boolean',
             ]);
@@ -103,6 +104,7 @@ class MedicationController extends Controller
                 'dosage' => $request->dosage,
                 'frequency' => $request->frequency,
                 'interval' => $request->interval,
+                'reminder_time' => $request->reminder_time,
                 'before_eat' => $request->before_eat ?? false, // default value
                 'is_active' => $request->is_active ?? true,   // default value
             ]);
@@ -131,6 +133,7 @@ class MedicationController extends Controller
                 'dosage' => 'nullable|string|max:255',
                 'frequency' => 'nullable|string|max:255',
                 'interval' => 'nullable|integer|min:1',
+                'reminder_time' => 'nullable|date_format:H:i',
                 'before_eat' => 'nullable|boolean',
                 'is_active' => 'nullable|boolean',
             ]);
@@ -159,6 +162,7 @@ class MedicationController extends Controller
             $medication->dosage = $request->dosage ?? $medication->dosage;
             $medication->frequency = $request->frequency ?? $medication->frequency;
             $medication->interval = $request->interval ?? $medication->interval;
+            $medication->reminder_time = $request->reminder_time ?? $medication->reminder_time;
             $medication->before_eat = $request->before_eat ?? $medication->before_eat;
             $medication->is_active = $request->is_active ?? $medication->is_active;
             $medication->save();

@@ -19,6 +19,7 @@ return new class extends Migration
                 $table->string('dosage'); // Dosage of the medication
                 $table->string('frequency'); // Frequency of the dosage (e.g., 'once a day', 'twice a day')
                 $table->integer('interval'); // Specific time of day for the medication
+                $table->time('reminder_time');
                 $table->boolean('before_eat')->default(false); // Additional instructions for the medication
                 $table->boolean('is_active')->default(true); // To track if the schedule is currently active
                 $table->timestamps(); // Laravel's created_at and updated_at columns
